@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js">
+    <title>This is the title</title>
+    <link rel="Stylesheet" href="Style.css">
+    <div class="header">
+    <h1>Search Studio Ghibli Api</h1>
+    </div>
+</head>
+<body> 
+    <!-- Søgefelt -->
+    <form class="searchForm"> 
+    <input type="text" class="search" placeholder="search for stuff">
+    <ul class="suggestions"> 
+    </ul>
+    </form>
+<script>
+
+//Kalder api
+const url = 'https://ghibliapi.herokuapp.com/films';
+
+//Fetch api
+const apiFilms= [];
+    fetch(url)
+    .then(blob => blob.json())
+    .then(data => {
+    apiFilms.push(...data);
+    console.log(apiFilms)
+    displayMatches();
+});
+
+//Filtrere data i apiet 
+function findMatches(wordToMatch, apiFilms){
+  return apiFilms.filter (element =>{
+  const regex = new RegExp(wordToMatch, 'gi');
+  return element.id.match(regex) || element.title.match(regex);
+  
+});
+}
+
+//Viser data på siden når der ikke er søgt på noget
+function displayMatches() {
+    var searchValue = this.value !== undefined ? this.value : "";
+    const matchArray = findMatches(searchValue, apiFilms)
+    const html = matchArray.map(element => 
+{
+    const regex = new RegExp(searchValue, 'gi');
+
+    //Viser id (id)
+    const id = element.id.replace(regex, 
+        `<span class="p id">${searchValue}</span>`);
+
+    //Viser film navn (filmName)
+    const filmName = element.title.replace(regex, 
+        `<span class="p filmName">${searchValue}</span>`);
+
+    //Viser udgivelses dato (releaseDate)
+    const releaseDate= element.release_date.replace(regex, 
+        `<span class="p releaseDate">${searchValue}</span>`);
+
+//Retunere det data der skal vises
+    return `<li> 
+        <span class="name"> 
+            ID: ${id}, 
+            Film: ${filmName}, 
+            Release Year: ${releaseDate}
+        </span>`;
+    }).join('');
+
+    suggestions.innerHTML = html;
+}
+
+//Retunere det første der passer med det der er søgt på i søgefeltet
+const searchInput = document.querySelector('.search');
+const suggestions = document.querySelector('.suggestions');
+
+//Lytter efter når der bliver skrevet noget i søgefeltet og viser resultatet
+searchInput.addEventListener('change', displayMatches);
+searchInput.addEventListener('keyup', displayMatches);
+
+</script>
+</body>
+</head>
+<footer>
+    <!-- Footer -->
+    <div class="footer">
+        <p>Lavet af Emil Qvistgaard</p>
+    </div>
+</footer>
+</html>
+
